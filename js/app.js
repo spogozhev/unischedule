@@ -727,6 +727,7 @@ const App = (() => {
         try {
             if (!cachedAddresses) {
                 cachedAddresses = await TimetableAPI.getAddresses();
+                cachedAddresses.sort((a, b) => (a.DisplayName1 || '').localeCompare(b.DisplayName1 || '', 'ru'));
             }
 
             const q = query.toLowerCase();
