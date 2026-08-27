@@ -718,8 +718,8 @@ const App = (() => {
                 ? e.Employments.map(emp => `${emp.Position || ''}${emp.Department ? ', ' + emp.Department : ''}`).join('; ')
                 : '';
             return `
-                <div class="search-result-item" data-type="teacher" data-id="${e.Id}" data-name="${escapeHtml(e.DisplayName || e.FullName)}">
-                    <div class="result-name">${highlightMatch(escapeHtml(e.DisplayName || e.FullName), query)}</div>
+                <div class="search-result-item" data-type="teacher" data-id="${e.Id}" data-name="${escapeHtml(e.FullName || e.DisplayName)}">
+                    <div class="result-name">${highlightMatch(escapeHtml(e.FullName || e.DisplayName), query)}</div>
                     ${employment ? `<div class="result-employment">${escapeHtml(employment)}</div>` : ''}
                 </div>
             `;
