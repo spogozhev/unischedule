@@ -16,11 +16,22 @@
     <div class="toolbar">
         <div class="week-selector">
             <button class="btn btn-icon" id="btn-prev-week" title="Предыдущая неделя">&larr;</button>
-            <span class="week-label" id="week-label"></span>
+            <span class="week-label" id="week-label" title="Нажмите для выбора недели"></span>
             <button class="btn btn-icon" id="btn-next-week" title="Следующая неделя">&rarr;</button>
             <button class="btn btn-secondary" id="btn-today">Сегодня</button>
         </div>
         <button class="btn btn-primary" id="btn-add-column">+ Добавить столбец</button>
+    </div>
+
+    <div class="week-picker-overlay" id="week-picker-overlay">
+        <div class="week-picker" id="week-picker">
+            <div class="week-picker-header">
+                <button class="btn btn-icon" id="picker-prev-month">&larr;</button>
+                <span class="week-picker-title" id="picker-title"></span>
+                <button class="btn btn-icon" id="picker-next-month">&rarr;</button>
+            </div>
+            <div class="week-picker-calendar" id="picker-calendar"></div>
+        </div>
     </div>
 
     <div class="timetable-wrapper">

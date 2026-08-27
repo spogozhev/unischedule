@@ -54,6 +54,14 @@ body {
     color: #1a3a5c;
     min-width: 220px;
     text-align: center;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.week-label:hover {
+    background: #e8edf2;
 }
 
 .btn {
@@ -537,4 +545,83 @@ body {
     .timetable {
         min-width: 600px;
     }
+}
+
+.week-picker-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.week-picker-overlay.active {
+    display: flex;
+}
+
+.week-picker {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    width: 320px;
+}
+
+.week-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.week-picker-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a3a5c;
+}
+
+.week-picker-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.week-picker-calendar .day-header {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    padding: 8px 0;
+}
+
+.week-picker-calendar .day-cell {
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+
+.week-picker-calendar .day-cell:hover {
+    background: #e8edf2;
+}
+
+.week-picker-calendar .day-cell.other-month {
+    color: #aaa;
+}
+
+.week-picker-calendar .day-cell.current-week {
+    background: #1a3a5c;
+    color: #fff;
+    font-weight: 600;
+}
+
+.week-picker-calendar .day-cell.monday {
+    font-weight: 600;
 }

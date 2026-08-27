@@ -22,6 +22,8 @@ const App = (() => {
     let cachedAddresses = null;
     let cachedClassrooms = null;
 
+    let pickerMonth = null;
+
     const els = {};
 
     function init() {
@@ -36,6 +38,9 @@ const App = (() => {
         els.searchSpinner = document.getElementById('search-spinner');
         els.breadcrumbs = document.getElementById('breadcrumbs');
         els.searchBox = document.getElementById('search-box');
+        els.weekPickerOverlay = document.getElementById('week-picker-overlay');
+        els.weekPickerTitle = document.getElementById('picker-title');
+        els.weekPickerCalendar = document.getElementById('picker-calendar');
 
         document.getElementById('btn-prev-week').addEventListener('click', () => { changeWeek(-1); });
         document.getElementById('btn-next-week').addEventListener('click', () => { changeWeek(1); });
@@ -44,6 +49,23 @@ const App = (() => {
         document.getElementById('btn-modal-close').addEventListener('click', closeModal);
         els.modalOverlay.addEventListener('click', (e) => {
             if (e.target === els.modalOverlay) closeModal();
+        });
+
+        els.weekLabel.addEventListener('click', openWeekPicker);
+        const pickerPrevMonth = document.getElementById('picker-prev-month');
+        const pickerNextMonth = document.getElementById('picker-next-month');
+        if (pickerPrevMonth) pickerPrevMonth.addEventListener('click', () => { changePickerMonth(-1); });
+        if (pickerNextMonth) pickerNextMonth.addEventListener('click', () => { changePickerMonth(1); });
+        if (els.weekPickerOverlay) {
+            els.weekPickerOverlay.addEventListener('click', (e) => {
+                if (e.target === els.weekPickerOverlay) closeWeekPicker();
+            });
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeWeekPicker();
+                closeModal();
+            }
         });
 
         document.querySelectorAll('.tab').forEach(tab => {
@@ -95,10 +117,86 @@ const App = (() => {
     }
 
     function updateWeekLabel() {
+        if (!els.weekLabel) return;
         const from = new Date(currentMonday);
         const to = new Date(currentMonday);
         to.setDate(to.getDate() + 6);
         els.weekLabel.textContent = `${from.getDate()} ${MONTH_NAMES_GEN[from.getMonth()]} — ${to.getDate()} ${MONTH_NAMES_GEN[to.getMonth()]} ${to.getFullYear()}`;
+    }
+
+    function openWeekPicker() {
+        if (!els.weekPickerOverlay) return;
+        pickerMonth = new Date(currentMonday.getFullYear(), currentMonday.getMonth(), 1);
+        renderWeekPicker();
+        els.weekPickerOverlay.classList.add('active');
+    }
+
+    function closeWeekPicker() {
+        if (!els.weekPickerOverlay) return;
+        els.weekPickerOverlay.classList.remove('active');
+    }
+
+    function changePickerMonth(delta) {
+        pickerMonth.setMonth(pickerMonth.getMonth() + delta);
+        renderWeekPicker();
+    }
+
+    function renderWeekPicker() {
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        els.weekPickerTitle.textContent = `${monthNames[pickerMonth.getMonth()]} ${pickerMonth.getFullYear()}`;
+
+        const dayHeaders = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+        let html = dayHeaders.map(d => `<div class="day-header">${d}</div>`).join('');
+
+        const firstDay = new Date(pickerMonth.getFullYear(), pickerMonth.getMonth(), 1);
+        const lastDay = new Date(pickerMonth.getFullYear(), pickerMonth.getMonth() + 1, 0);
+        const startDayOfWeek = (firstDay.getDay() + 6) % 7;
+
+        const prevMonthLastDay = new Date(pickerMonth.getFullYear(), pickerMonth.getMonth(), 0).getDate();
+        for (let i = startDayOfWeek - 1; i >= 0; i--) {
+            const day = prevMonthLastDay - i;
+            const date = new Date(pickerMonth.getFullYear(), pickerMonth.getMonth() - 1, day);
+            html += renderDayCell(date, true);
+        }
+
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+            const date = new Date(pickerMonth.getFullYear(), pickerMonth.getMonth(), day);
+            html += renderDayCell(date, false);
+        }
+
+        const remainingCells = 42 - (startDayOfWeek + lastDay.getDate());
+        for (let day = 1; day <= remainingCells; day++) {
+            const date = new Date(pickerMonth.getFullYear(), pickerMonth.getMonth() + 1, day);
+            html += renderDayCell(date, true);
+        }
+
+        els.weekPickerCalendar.innerHTML = html;
+
+        els.weekPickerCalendar.querySelectorAll('.day-cell').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const parts = cell.dataset.date.split('-');
+                const selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                const monday = TimetableAPI.getWeekMonday(selectedDate);
+                currentMonday = monday;
+                pickerMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                updateWeekLabel();
+                render();
+                refreshAllColumns();
+                closeWeekPicker();
+            });
+        });
+    }
+
+    function renderDayCell(date, isOtherMonth) {
+        const classes = ['day-cell'];
+        if (isOtherMonth) classes.push('other-month');
+        if (date.getDay() === 1) classes.push('monday');
+        const currentMondayDate = new Date(currentMonday.getFullYear(), currentMonday.getMonth(), currentMonday.getDate());
+        const cellDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        if (cellDate.getTime() === currentMondayDate.getTime()) classes.push('current-week');
+
+        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        return `<div class="${classes.join(' ')}" data-date="${dateStr}">${date.getDate()}</div>`;
     }
 
     function render() {
@@ -815,7 +913,11 @@ const App = (() => {
         return text.replace(regex, '<strong>$1</strong>');
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
     return { init };
 })();
