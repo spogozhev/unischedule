@@ -17,6 +17,7 @@ node_modules
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
@@ -45,14 +46,14 @@ dev.out.log
 test
 prompt
 
+# Skills directory
+/skills/
+
 AGENTS.md
 TASK.md
 
 .vscode
 
 *.bak
-/dist
 
 server.log
-# Skills directory
-/skills/

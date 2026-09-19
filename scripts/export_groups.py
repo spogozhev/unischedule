@@ -28,8 +28,6 @@ def export_all_groups() -> List[Dict]:
     print(f"Найдено подразделений: {len(divisions)}")
     
     for i, div in enumerate(divisions, 1):
-        if i < 31 :
-            continue
         print(f"[{i}/{len(divisions)}] Обрабатываю: {div['Name']}")
         try:
             levels = get_division_program_levels(div['Alias'])

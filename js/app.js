@@ -853,7 +853,9 @@ const App = (() => {
                         typeLabel: 'Преподаватель'
                     });
                 }
-                closeModal();
+                els.searchInput.value = '';
+                els.searchResults.innerHTML = '';
+                els.searchInput.focus();
             });
         });
     }
