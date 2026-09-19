@@ -1,27 +1,27 @@
 import json
-import requests
-from typing import List, Dict
 import time
+
+import requests
 
 BASE_URL = "https://timetable.spbu.ru/api/v1"
 
-def get_study_divisions() -> List[Dict]:
+def get_study_divisions() -> list[dict]:
     response = requests.get(f"{BASE_URL}/study/divisions", timeout=30)
     response.raise_for_status()
     return response.json()
 
-def get_division_program_levels(alias: str) -> List[Dict]:
+def get_division_program_levels(alias: str) -> list[dict]:
     response = requests.get(f"{BASE_URL}/study/divisions/{alias}/programs/levels", timeout=30)
     response.raise_for_status()
     return response.json()
 
-def get_program_groups(program_id: int) -> List[Dict]:
+def get_program_groups(program_id: int) -> list[dict]:
     response = requests.get(f"{BASE_URL}/programs/{program_id}/groups", timeout=30)
     response.raise_for_status()
     data = response.json()
     return data.get("Groups", [])
 
-def export_all_groups() -> List[Dict]:
+def export_all_groups() -> list[dict]:
     all_groups = []
     divisions = get_study_divisions()
     
@@ -31,7 +31,7 @@ def export_all_groups() -> List[Dict]:
         print(f"[{i}/{len(divisions)}] Обрабатываю: {div['Name']}")
         try:
             levels = get_division_program_levels(div['Alias'])
-        except Exception as e:
+        except requests.RequestException as e:
             print(f"  Ошибка загрузки программ: {e}")
             continue
         
@@ -58,7 +58,7 @@ def export_all_groups() -> List[Dict]:
                             })
                         if groups:
                             print(f"    + {len(groups)} групп")
-                    except Exception as e:
+                    except requests.RequestException as e:
                         print(f"  Ошибка загрузки групп программы {program_id}: {e}")
                         continue
         
